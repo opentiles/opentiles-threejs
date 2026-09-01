@@ -2,6 +2,7 @@ import {
   AmbientLight,
   Box3,
   Box3Helper,
+  CanvasTexture,
   Color,
   DirectionalLight,
   Group,
@@ -9,6 +10,8 @@ import {
   MeshBasicMaterial,
   PerspectiveCamera,
   Scene,
+  Sprite,
+  SpriteMaterial,
   Vector3,
   WebGLRenderer,
 } from 'three';
@@ -146,9 +149,39 @@ const wireMat = (z: number) => {
 const debugGroup = new Group();
 scene.add(debugGroup);
 
+// one shared label material per zoom (a canvas texture with "z{zoom}",
+// tinted like the wireframe) — sprites are recreated per sync, textures not
+const zoomLabelMats = new Map<number, SpriteMaterial>();
+const zoomLabelMat = (z: number) => {
+  let m = zoomLabelMats.get(z);
+  if (!m) {
+    const c = document.createElement('canvas');
+    c.width = 128;
+    c.height = 64;
+    const ctx = c.getContext('2d')!;
+    ctx.fillStyle = 'rgba(10, 16, 24, .75)';
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.font = 'bold 44px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = `#${wireMat(z).color.getHexString()}`;
+    ctx.fillText(`z${z}`, c.width / 2, c.height / 2);
+    m = new SpriteMaterial({ map: new CanvasTexture(c), depthTest: false, transparent: true });
+    zoomLabelMats.set(z, m);
+  }
+  return m;
+};
+
+const labelCenter = new Vector3();
+
 function syncDebug(): void {
   const wire = $<HTMLInputElement>('wire').checked;
   const boxes = $<HTMLInputElement>('boxes').checked;
+  for (const o of debugGroup.children)
+    if (o instanceof Box3Helper) {
+      o.geometry.dispose();
+      (o.material as { dispose(): void }).dispose();
+    }
   debugGroup.clear();
   for (const child of tiles.group.children) {
     const t = child.userData.tile as TileCoord | undefined;
@@ -161,6 +194,12 @@ function syncDebug(): void {
     if (boxes && child.visible) {
       const box = new Box3().setFromObject(child);
       debugGroup.add(new Box3Helper(box, wireMat(t.z).color));
+      const edge = (child.userData.edge as number | undefined) ?? box.max.x - box.min.x;
+      const label = new Sprite(zoomLabelMat(t.z));
+      box.getCenter(labelCenter);
+      label.position.set(labelCenter.x, box.max.y + edge * 0.05, labelCenter.z);
+      label.scale.set(edge * 0.2, edge * 0.1, 1);
+      debugGroup.add(label);
     }
   }
 }
