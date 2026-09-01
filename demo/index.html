@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>opentiles-threejs demo</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #1d2733; color: #e8eef5; font: 13px/1.4 system-ui, sans-serif; overflow: hidden; }
+  canvas { display: block; }
+  #panel { position: fixed; left: 12px; top: 12px; background: rgba(12, 18, 26, .85); border: 1px solid #34465a; border-radius: 8px; padding: 10px 12px; width: 260px; }
+  #panel h1 { font-size: 14px; margin: 0 0 8px; }
+  #panel label { display: grid; grid-template-columns: 84px 1fr; align-items: center; gap: 6px; margin: 4px 0; }
+  #panel input[type="text"], #panel input[type="number"] { width: 100%; box-sizing: border-box; background: #0f1620; color: inherit; border: 1px solid #34465a; border-radius: 4px; padding: 3px 6px; font: inherit; }
+  #panel button { margin-top: 6px; width: 100%; padding: 5px; background: #2d6cdf; color: #fff; border: 0; border-radius: 4px; font: inherit; cursor: pointer; }
+  #panel button:hover { background: #3a7cf0; }
+  #panel .row { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 6px; }
+  #panel .row label { display: flex; grid-template-columns: none; gap: 4px; margin: 0; white-space: nowrap; }
+  #hud { margin-top: 8px; white-space: pre-wrap; color: #9fb3c8; }
+  #attrib { position: fixed; right: 8px; bottom: 6px; font-size: 11px; color: #9fb3c8; background: rgba(12, 18, 26, .7); padding: 3px 8px; border-radius: 4px; }
+  #help { position: fixed; left: 12px; bottom: 6px; font-size: 11px; color: #7f93a8; }
+</style>
+</head>
+<body>
+<div id="panel">
+  <h1>opentiles-threejs demo</h1>
+  <label>server <input id="server" type="text"></label>
+  <label>lat <input id="lat" type="number" step="0.0001"></label>
+  <label>lon <input id="lon" type="number" step="0.0001"></label>
+  <label>height <input id="height" type="number" step="100" title="camera start height (m)"></label>
+  <label>min zoom <input id="minZoom" type="number" min="1" max="22"></label>
+  <label>max zoom <input id="maxZoom" type="number" min="1" max="22"></label>
+  <label>maxError <input id="maxError" type="number" min="0.5" step="0.5" title="screen-space error budget (px)"></label>
+  <div class="row">
+    <label><input id="wire" type="checkbox"> wireframe</label>
+    <label><input id="freeze" type="checkbox"> freeze LOD</label>
+    <label><input id="boxes" type="checkbox"> debug boxes</label>
+  </div>
+  <button id="load">Load</button>
+  <div id="hud">…</div>
+</div>
+<div id="help">↑/↓ tilt · ←/→ yaw · Q/E roll · W/S speed up/down</div>
+<div id="attrib">…</div>
+<script type="module" src="./main.ts"></script>
+</body>
+</html>
